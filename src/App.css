@@ -1,10 +1,11 @@
 html, body, #root {
-  background-color: #1E1E2E;
+  background-color: #121212; ;
   width: 240px;
   height: 490px;
+  font-family: "Segoe UI", sans-serif;
 }
 .popup-container {
-  background-color: #1E1E2E;
+  background-color:#121212; ;
   color: #FFF;
   border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.5);

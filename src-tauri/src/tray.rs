@@ -1,6 +1,6 @@
 
 use tauri::{
-    AppHandle, Manager, PhysicalPosition, Result, menu::{Menu, MenuId, MenuItem}, tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent}
+    AppHandle, Manager, PhysicalPosition, Result, WebviewUrl, WebviewWindowBuilder, WindowEvent, menu::{Menu, MenuId, MenuItem}, tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent}
 };
 
 pub fn setup_tray(app: &AppHandle) -> Result<()> {
@@ -14,31 +14,59 @@ pub fn setup_tray(app: &AppHandle) -> Result<()> {
         true,
         None::<&str>,
     )?;
+    let config_item = MenuItem::with_id(
+        app,
+        MenuId::new("config"),
+        "Configuração",
+        true,
+        None::<&str>,
+    )?;
 
-    let menu = Menu::with_items(app, &[&quit])?;
-
-    // =========================
-    // TRAY ICON
-    // =========================
+    let menu = Menu::with_items(app, &[&config_item, &quit])?;
     TrayIconBuilder::new()
         .icon(app.default_window_icon().unwrap().clone())
         .menu(&menu)
         .show_menu_on_left_click(false) // esquerdo NÃO abre menu
-        .on_menu_event(|app, event| {
-            if event.id().as_ref() == "quit" {
-                app.exit(0);
+        .on_menu_event(|app, event| match event.id.as_ref() {
+            "config" => {
+                if let Some(window) = app.get_webview_window("Config") {
+                    let _ = window.show();
+                    let _ = window.set_focus();
+                }else {
+                    if let Ok(window) = WebviewWindowBuilder::new(
+                        app,
+                        "Config",
+                        WebviewUrl::App("config.html".into())
+                    )
+                    .title("Configuração")
+                    .inner_size(600.0, 600.0)
+                    .center()
+                    .resizable(false)
+                    .minimizable(false)
+                    .maximizable(false)
+                    .build() {
+                        let window_clone = window.clone();
+                        window.on_window_event(move |event| {
+                            if let WindowEvent::CloseRequested { api, .. } = event {
+                                api.prevent_close();
+                                let _ = window_clone.hide();
+                            }
+                        });
+                    }
+                }
             }
+            "quit" => app.exit(0),
+            _ => {}
         })
         .on_tray_icon_event(|tray, event| {
             let app = tray.app_handle();
             match event {
-                // CLIQUE ESQUERDO → POPUP
                 TrayIconEvent::Click {
                     button: MouseButton::Left,
                     button_state: MouseButtonState::Up,
                     ..
                 } => {
-                    if let Some(window) = app.get_webview_window("projects") {
+                    if let Some(window) = app.get_webview_window("Time") {
                         let _ = window.unminimize();
                         let _ = window.show();
                         let _ = window.set_focus();
@@ -49,7 +77,6 @@ pub fn setup_tray(app: &AppHandle) -> Result<()> {
                             .ok().flatten()
                             .expect("Nenhum monitor encontrado");
 
-                        // resolução total do monitor
                         let monitor_size = monitor.size();
                         let monitor_x = monitor.position().x as f64;
                         let monitor_y = monitor.position().y as f64;
@@ -65,7 +92,7 @@ pub fn setup_tray(app: &AppHandle) -> Result<()> {
                         let position_monitor = PhysicalPosition::new(x, y);
                         let window = tauri::WebviewWindowBuilder::new(
                             app,
-                            "projects",
+                            "Time",
                             tauri::WebviewUrl::App("index.html".into()),
                         )
                         .title("TraceTime")
@@ -90,8 +117,6 @@ pub fn setup_tray(app: &AppHandle) -> Result<()> {
                         let _ = window.set_focus();
                     }
                 }
-
-                // CLIQUE DIREITO → abre menu automaticamente
                 _ => {}
             }
         })

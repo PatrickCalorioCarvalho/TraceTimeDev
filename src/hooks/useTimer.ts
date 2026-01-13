@@ -1,36 +1,54 @@
-import { useEffect, useState } from "react";
-import { invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
+import { useEffect, useRef, useState } from "react";
 
 export function useTimer() {
-  const [seconds, setSeconds] = useState(0);
-  const [running, setRunning] = useState(false);
+  const [status, setStatus] = useState<'idle' | 'running' | 'paused'>('idle');
+  const [elapsed, setElapsed] = useState(0);
 
+  const startRef = useRef<number | null>(null);
+  const intervalRef = useRef<number | null>(null);
+
+  // =========================
+  // LOOP DE CONTAGEM
+  // =========================
   useEffect(() => {
-    const unlisten = listen<number>("timer:tick", (e) => {
-      setSeconds(e.payload);
-    });
+    if (status === 'running') {
+      intervalRef.current = window.setInterval(() => {
+        if (startRef.current) {
+          setElapsed(Date.now() - startRef.current);
+        }
+      }, 1000);
+    }
 
     return () => {
-      unlisten.then((f) => f());
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
     };
-  }, []);
+  }, [status]);
 
-  const start = async () => {
-    setRunning(true);
-    await invoke("start_timer");
+  // =========================
+  // AÇÕES
+  // =========================
+  function start() {
+    startRef.current = Date.now() - elapsed;
+    setStatus('running');
+  }
+
+  function pause() {
+    setStatus('paused');
+  }
+
+  function stop() {
+    setStatus('idle');
+    setElapsed(0);
+    startRef.current = null;
+  }
+
+  return {
+    status,
+    elapsed,
+    start,
+    pause,
+    stop,
   };
-
-  const pause = async () => {
-    setRunning(false);
-    await invoke("pause_timer");
-  };
-
-  const stop = async () => {
-    setRunning(false);
-    setSeconds(0);
-    await invoke("stop_timer");
-  };
-
-  return { seconds, running, start, pause, stop };
 }
