@@ -1,0 +1,69 @@
+html, body, #root {
+  background-color: #1E1E2E;
+  width: 240px;
+  height: 490px;
+}
+.popup-container {
+  background-color: #1E1E2E;
+  color: #FFF;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  font-family: sans-serif;
+}
+
+.selector-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.selector-group label {
+  font-size: 0.85rem;
+  margin-bottom: 4px;
+  color: #BBB;
+}
+
+.selector-group select {
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid #333;
+  background-color: #2A2A3C;
+  color: #FFF;
+  font-size: 0.9rem;
+}
+
+.time-controls {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.start-stop {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  background-color: #4CAF50;
+  color: #FFF;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.start-stop:hover {
+  background-color: #45A049;
+}
+
+.start-stop.running {
+  background-color: #FF6B6B;
+}
+
+.time-indicator {
+  margin-left: 12px;
+  font-size: 0.9rem;
+  color: #AAA;
+}
