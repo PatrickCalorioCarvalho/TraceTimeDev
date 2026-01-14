@@ -1,14 +1,16 @@
 html, body, #root {
   background-color: #121212;
-  width: 240px;
-  height: 490px;
+  width: 250px;
+  height: 470px;
   font-family: "Segoe UI", sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
 .disabled-warning {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: #ff9800;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   text-align: center;
 }
 
@@ -28,18 +30,20 @@ button:disabled {
   box-shadow: 0 4px 20px rgba(0,0,0,0.5);
   display: flex;
   flex-direction: column;
-  padding: 16px;
+  padding: 12px;
   font-family: sans-serif;
+  height: 100%;
+  overflow: hidden; /* evita scroll desnecessário */
 }
 
 .selector-group {
   display: flex;
   flex-direction: column;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .selector-group label {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   margin-bottom: 4px;
   color: #BBB;
 }
@@ -49,7 +53,8 @@ button:disabled {
   background-color: #2A2A3C !important;
   border: 1px solid #333 !important;
   border-radius: 6px !important;
-  min-height: 36px;
+  min-height: 30px !important;
+  font-size: 0.75rem !important;
 }
 
 .css-13cymwt-control:hover {
@@ -59,53 +64,64 @@ button:disabled {
 .css-1nmdiq5-menu {
   background-color: #1e1e1e !important;
   color: #FFF !important;
+  font-size: 0.75rem !important;
 }
 
-.css-1nmdiq5-menu .css-1nmdiq5-option {
+.css-1nmdiq5-option {
   background-color: #1e1e1e !important;
   color: #FFF !important;
+  font-size: 0.75rem !important;
 }
 
-.css-1nmdiq5-menu .css-1nmdiq5-option:hover {
+.css-1nmdiq5-option:hover {
   background-color: #333 !important;
 }
 
 .css-1dimb5e-singleValue {
   color: #FFF !important;
+  font-size: 0.75rem !important;
 }
 
+/* Preview centralizado entre selects e botões */
+.time-preview {
+  margin: 40px 0;
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #FFF;
+}
+
+/* Botões mais próximos do preview */
 .time-controls {
-  margin-top: auto;
+  margin-top: 6px; /* sobe os botões */
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
 }
 
-.start-stop {
-  flex: 1;
-  padding: 10px;
+.time-controls button {
+  flex: 1 1 45%; /* dois botões por linha */
+  padding: 8px;
+  font-size: 0.75rem;
   border: none;
   border-radius: 6px;
-  background-color: #4CAF50;
-  color: #FFF;
   font-weight: bold;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.2s;
 }
 
-.start-stop:hover {
-  background-color: #45A049;
-}
+.btn-start { background-color: #4CAF50; color: #FFF; }
+.btn-start:hover { background-color: #45A049; }
 
-.start-stop.running {
-  background-color: #FF6B6B;
-}
+.btn-pause { background-color: #FFC107; color: #000; }
+.btn-pause:hover { background-color: #e0a800; }
 
-.time-indicator {
-  margin-left: 12px;
-  font-size: 0.9rem;
-  color: #AAA;
-}
+.btn-resume { background-color: #2196F3; color: #FFF; }
+.btn-resume:hover { background-color: #1976D2; }
+
+.btn-stop { background-color: #F44336; color: #FFF; }
+.btn-stop:hover { background-color: #D32F2F; }
 
 .retry-btn {
   margin-top: 8px;

@@ -19,12 +19,15 @@ fn main() {
             timer::start_timer,
             timer::pause_timer,
             timer::stop_timer,
+            timer::resume_timer,
             config::save_config,
             config::load_config,
             gitlab::test_gitlab,
             gitlab::gitlab_groups,
             gitlab::gitlab_projects,
             gitlab::gitlab_issues,
+            timer::get_session_time,
+            timer::resume_last_session,
         ])
         .setup(|app| {
             let app_data_dir_path = app.path().app_data_dir().expect("Failed to get app data dir");
@@ -49,9 +52,19 @@ fn main() {
                         project_id INTEGER,
                         issue_id INTEGER,
                         label TEXT,
-                        seconds INTEGER DEFAULT 0,
                         status TEXT,
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    )",
+                [],
+            ).unwrap();
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS session_intervals (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        session_id INTEGER,
+                        start_time DATETIME,
+                        end_time DATETIME,
+                        FOREIGN KEY(session_id) REFERENCES sessions(id)
                     )",
                 [],
             ).unwrap();

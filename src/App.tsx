@@ -2,21 +2,9 @@ import React, { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import Select from "react-select";
 
-interface Group {
-  id: number;
-  name: string;
-}
-
-interface Project {
-  id: number;
-  name: string;
-}
-
-interface Issue {
-  id: number;
-  title: string;
-}
-
+interface Group { id: number; name: string; }
+interface Project { id: number; name: string; }
+interface Issue { id: number; title: string; }
 
 const App: React.FC = () => {
   const [groups, setGroups] = useState<Group[]>([]);
@@ -29,18 +17,19 @@ const App: React.FC = () => {
   const [selectedIssue, setSelectedIssue] = useState<number | null>(null);
   const [entryType, setEntryType] = useState<string>("");
 
-  const [running, setRunning] = useState<boolean>(false);
-  const [startTime, setStartTime] = useState<string | null>(null);
+  const [sessionId, setSessionId] = useState<number | null>(null);
+  const [status, setStatus] = useState<string>("idle");
+  const [preview, setPreview] = useState<string>("0s");
 
   const [configOk, setConfigOk] = useState<boolean>(false);
 
+  // Carrega configuração inicial
   const checkConfig = async () => {
     try {
       const [url, token, labelsStr, user, userId] =
         await invoke<[string, string, string, string, number]>("load_config");
 
       const hasLabels = labelsStr && labelsStr.split(",").filter(l => l.trim() !== "").length > 0;
-
       if (url && token && userId > 0 && user && hasLabels) {
         setConfigOk(true);
         setLabels(labelsStr.split(",").map(l => l.trim()).filter(l => l));
@@ -57,42 +46,99 @@ const App: React.FC = () => {
     try {
       const result = await invoke<Group[]>("gitlab_groups");
       setGroups(result);
-    } catch (err) {
-      console.error("Erro ao carregar grupos:", err);
-    }
+    } catch (err) { console.error("Erro ao carregar grupos:", err); }
   };
 
   const loadProjects = async (groupId: number) => {
     try {
       const result = await invoke<Project[]>("gitlab_projects", { groupId });
       setProjects(result);
-    } catch (err) {
-      console.error("Erro ao carregar projetos:", err);
-    }
+    } catch (err) { console.error("Erro ao carregar projetos:", err); }
   };
 
   const loadIssues = async (projectId: number) => {
     try {
       const result = await invoke<Issue[]>("gitlab_issues", { projectId });
       setIssues(result);
-    } catch (err) {
-      console.error("Erro ao carregar issues:", err);
-    }
+    } catch (err) { console.error("Erro ao carregar issues:", err); }
   };
 
+  // Recupera última sessão ao abrir
   useEffect(() => {
     checkConfig();
-    const interval = setInterval(checkConfig, 5000);
-    return () => clearInterval(interval);
+    invoke<[number, number, number, number, string, string, string] | null>("resume_last_session")
+      .then((res) => {
+        if (res) {
+          const [id, g, p, i, lbl, st, prev] = res;
+          if(st === "finalizado") return;
+          setSessionId(id);
+          setSelectedGroup(g);
+          setSelectedProject(p);
+          setSelectedIssue(i);
+          setEntryType(lbl);
+          setStatus(st);
+          setPreview(prev);
+        }
+      });
   }, []);
 
-  const handleStartStop = () => {
-    if (!running) {
-      const now = new Date();
-      setStartTime(now.toLocaleTimeString());
+  // Atualiza preview a cada 10s se rodando
+  useEffect(() => {
+    console.log("Efeito de atualização de preview acionado.");
+    console.log("sessionId:", sessionId, "status:", status);
+    if (!sessionId || status !== "runner") return;
+
+    const updatePreview = async () => {
+      const previewTime = await invoke<string>("get_session_time", { sessionId });
+      console.log("Preview atualizado:", previewTime);
+      setPreview(previewTime);
+    };
+
+    updatePreview(); // consulta imediata
+
+    const interval = setInterval(updatePreview, 2000);
+    return () => clearInterval(interval);
+  }, [sessionId, status]);
+
+
+  const canStart = selectedGroup && selectedProject && selectedIssue && entryType;
+
+  const handleStart = async () => {
+    const id = await invoke<number>("start_timer", {
+      groupId: selectedGroup,
+      projectId: selectedProject,
+      issueId: selectedIssue,
+      label: entryType,
+    });
+    if (id > 0) {
+      setSessionId(id);
+      setStatus("runner");
+      const previewTime = await invoke<string>("get_session_time", { sessionId: id });
+      setPreview(previewTime);
     }
-    setRunning(!running);
   };
+
+  const handlePause = async () => {
+    if (!sessionId) return;
+    await invoke("pause_timer", { sessionId });
+    setStatus("pause");
+    const previewTime = await invoke<string>("get_session_time", { sessionId });
+    setPreview(previewTime);
+  };
+
+  const handleResume = async () => {
+    if (!sessionId) return;
+    await invoke("resume_timer", { sessionId });
+    setStatus("runner");
+  };
+
+  const handleStop = async () => {
+    if (!sessionId) return;
+    await invoke("stop_timer", { sessionId });
+    setStatus("idle");
+    setPreview("0s");
+  };
+
 
   const selectStyles = {
     control: (base: any, state: any) => ({
@@ -220,18 +266,28 @@ const App: React.FC = () => {
         />
       </div>
 
-
-      {/* Controle de horário */}
-      <div className="time-controls">
-        <button
-          className={`start-stop ${running ? "running" : ""}`}
-          onClick={handleStartStop}
-          disabled={!configOk}
-        >
-          {running ? `Parando... (${startTime})` : "Iniciar"}
-        </button>
-        {startTime && running && <span className="time-indicator">{startTime}</span>}
+      {/* Preview */}
+      <div className="time-preview">
+        <strong>Tempo:</strong> {preview}
       </div>
+
+      {/* Controle de tempo */}
+      <div className="time-controls">
+        <button onClick={handleStart} disabled={!canStart || status !== "idle"}>
+          Iniciar
+        </button>
+        <button onClick={handlePause} disabled={status !== "runner"}>
+          Pausar
+        </button>
+        <button onClick={handleResume} disabled={status !== "pause"}>
+          Retomar
+        </button>
+        <button onClick={handleStop} disabled={status !== "pause"}>
+          Finalizar
+        </button>
+      </div>
+
+  
     </div>
   );
 };

@@ -2,6 +2,7 @@
 use tauri::{
     AppHandle, Manager, PhysicalPosition, Result, WebviewUrl, WebviewWindowBuilder, WindowEvent, menu::{Menu, MenuId, MenuItem}, tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent}
 };
+use tauri::image::Image;
 
 pub fn setup_tray(app: &AppHandle) -> Result<()> {
     let quit = MenuItem::with_id(
@@ -18,10 +19,10 @@ pub fn setup_tray(app: &AppHandle) -> Result<()> {
         true,
         None::<&str>,
     )?;
-
     let menu = Menu::with_items(app, &[&config_item, &quit])?;
-    TrayIconBuilder::new()
-        .icon(app.default_window_icon().unwrap().clone())
+    TrayIconBuilder::with_id("tray-main")
+        .tooltip("TTD")
+        .icon(Image::from_bytes(include_bytes!("../icons/tray_idle.png")).unwrap())
         .menu(&menu)
         .show_menu_on_left_click(false) // esquerdo NÃO abre menu
         .on_menu_event(|app, event| match event.id.as_ref() {
@@ -118,4 +119,23 @@ pub fn setup_tray(app: &AppHandle) -> Result<()> {
         .build(app)?;
 
     Ok(())
+}
+
+pub fn update_tray_icon(app: &tauri::AppHandle, status: &str) {
+    if let Some(tray_handle) = app.tray_by_id("tray-main") {
+        match status {
+            "runner" => {
+                let icon = Image::from_bytes(include_bytes!("../icons/tray_running.png")).unwrap();
+                let _ = tray_handle.set_icon(Some(icon));
+            }
+            "pause" => {
+                let icon = Image::from_bytes(include_bytes!("../icons/tray_pause.png")).unwrap();
+                let _ = tray_handle.set_icon(Some(icon));
+            }
+            _ => {
+                let icon = Image::from_bytes(include_bytes!("../icons/tray_idle.png")).unwrap();
+                let _ = tray_handle.set_icon(Some(icon));
+            }
+        }
+    }
 }
