@@ -4,9 +4,6 @@ use tauri::{
 };
 
 pub fn setup_tray(app: &AppHandle) -> Result<()> {
-    // =========================
-    // MENU (botão direito)
-    // =========================
     let quit = MenuItem::with_id(
         app,
         MenuId::new("quit"),
@@ -39,7 +36,7 @@ pub fn setup_tray(app: &AppHandle) -> Result<()> {
                         WebviewUrl::App("config.html".into())
                     )
                     .title("Configuração")
-                    .inner_size(600.0, 600.0)
+                    .inner_size(500.0, 500.0)
                     .center()
                     .resizable(false)
                     .minimizable(false)
@@ -87,8 +84,6 @@ pub fn setup_tray(app: &AppHandle) -> Result<()> {
                         let x = monitor_x + monitor_size.width as f64 - popup_width * (2.65 as f64);
                         let y = monitor_y + monitor_size.height as f64 - popup_height * (1.55 as f64);
 
-                        println!("Monitor size: {:?}", monitor_size);
-                        println!("Popup position: x: {}, y: {}", x, y);
                         let position_monitor = PhysicalPosition::new(x, y);
                         let window = tauri::WebviewWindowBuilder::new(
                             app,
@@ -106,8 +101,8 @@ pub fn setup_tray(app: &AppHandle) -> Result<()> {
                         .visible(true)
                         .build()
                         .expect("failed to create popup window");
-                        let window_clone = window.clone();
 
+                        let window_clone = window.clone();
                         window.on_window_event(move |event| {
                             if let tauri::WindowEvent::Focused(false) = event {
                                 let _ = window_clone.hide();

@@ -1,28 +1,72 @@
+/* Reset básico */
 body, html {
   margin: 0;
   padding: 0;
   height: 100%;
   font-family: "Segoe UI", sans-serif;
+  background: #121212; /* fundo escuro */
+  color: #e0e0e0;
 }
 
+/* Container principal */
 .container {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
   height: 100vh;
-  background: #121212; /* fundo escuro */
-  color: #e0e0e0;      /* texto claro */
 }
 
-h2 {
-  margin-bottom: 1.5rem;
-  color: #ffffff;
+/* Barra superior (tabs minimalistas) */
+.topbar {
+  display: flex;
+  background: #1e1e1e;
+  border-bottom: 1px solid #333;
+}
+
+.topbar button {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  background: transparent;
+  color: #bbb;
+  font-weight: bold;
+  cursor: pointer;
+  transition: color 0.3s, background 0.3s;
+}
+
+.topbar button:hover {
+  background: #2a2a2a;
+  color: #fff;
+}
+
+.topbar button.active {
+  background: #0078d4;
+  color: #fff;
+}
+
+.topbar button:disabled {
+  color: #555;
+  cursor: not-allowed;
+}
+
+/* Área central */
+.content {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center; /* mantém centralizado */
+  padding: 1rem;
+}
+
+/* Formulário */
+.form {
+  width: 80%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
 }
 
 .form-group {
-  margin-bottom: 1rem;
-  width: 80%;
+  margin-bottom: 0.6rem;
 }
 
 label {
@@ -32,7 +76,7 @@ label {
   color: #bbbbbb;
 }
 
-input {
+input, textarea {
   width: 100%;
   padding: 0.6rem;
   border: 1px solid #333;
@@ -41,19 +85,122 @@ input {
   color: #e0e0e0;
 }
 
-input:focus {
+input:focus, textarea:focus {
   outline: none;
   border-color: #0078d7;
 }
 
-.buttons {
+/* Tabela com scroll sempre habilitado */
+.table-container {
+  min-height: 120px;
+  max-height: 150px;       /* trava já no 3º item */
+  overflow-y: scroll;      /* scroll sempre visível */
+  margin-top: 1rem;
+  border: 1px solid #333;
+  border-radius: 6px;
+}
+
+.table-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background-color: #444;
+  border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  background-color: #666;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #333;
+}
+
+/* Botões minimalistas com ícones */
+.icon-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: color 0.3s;
+}
+
+.icon-btn.add {
+  color: #4caf50; /* verde */
+}
+
+.icon-btn.add:hover {
+  color: #2e7d32;
+}
+
+.icon-btn.remove {
+  color: #f44336; /* vermelho */
+}
+
+.icon-btn.remove:hover {
+  color: #c62828;
+}
+
+/* Botões lado a lado (Testar + Salvar) */
+.buttons.dual {
   display: flex;
   justify-content: center;
-  gap: 1rem;
+  gap: 1rem; /* espaçamento entre Testar e Salvar */
   margin-top: 1.5rem;
 }
 
-button {
+/* Botão Testar com estados */
+.test-btn {
+  padding: 0.7rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  background: #ff9800; /* laranja padrão */
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.test-btn:hover {
+  background: #e68900;
+}
+
+.test-btn.ok {
+  background: #4caf50; /* verde se OK */
+}
+
+.test-btn.ok:hover {
+  background: #2e7d32;
+}
+
+.test-btn.fail {
+  background: #f44336; /* vermelho se falhou */
+}
+
+.test-btn.fail:hover {
+  background: #c62828;
+}
+.buttons { 
+  display: flex; 
+  justify-content: center; 
+  margin-top: 1.5rem; 
+}
+
+/* Botão salvar (azul destacado) */
+.buttons.dual button:not(.test-btn),
+.buttons button {
   padding: 0.7rem 1.2rem;
   border: none;
   border-radius: 6px;
@@ -64,6 +211,25 @@ button {
   transition: background 0.3s;
 }
 
-button:hover {
+/* Hover quando ativo */
+.buttons.dual button:not(.test-btn):hover,
+.buttons button:hover {
   background: #005a9e;
+}
+
+/* Estado desabilitado */
+.buttons.dual button:disabled,
+.buttons button:disabled {
+  background: #555;       /* cinza apagado */
+  color: #aaa;
+  cursor: not-allowed;
+}
+
+/* Mensagem de sucesso */
+.success {
+  margin-top: 0.3rem;
+  font-size: small;
+  color: #585c58;
+  font-weight: bold;
+  text-align: center;
 }

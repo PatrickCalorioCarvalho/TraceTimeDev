@@ -1,11 +1,28 @@
 html, body, #root {
-  background-color: #121212; ;
+  background-color: #121212;
   width: 240px;
   height: 490px;
   font-family: "Segoe UI", sans-serif;
 }
+
+.disabled-warning {
+  font-size: 0.85rem;
+  color: #ff9800;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+input:disabled,
+select:disabled,
+button:disabled {
+  background-color: #333 !important;
+  color: #777 !important;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .popup-container {
-  background-color:#121212; ;
+  background-color: #121212;
   color: #FFF;
   border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.5);
@@ -27,13 +44,34 @@ html, body, #root {
   color: #BBB;
 }
 
-.selector-group select {
-  padding: 6px;
-  border-radius: 6px;
-  border: 1px solid #333;
-  background-color: #2A2A3C;
-  color: #FFF;
-  font-size: 0.9rem;
+/* react-select overrides */
+.css-13cymwt-control {
+  background-color: #2A2A3C !important;
+  border: 1px solid #333 !important;
+  border-radius: 6px !important;
+  min-height: 36px;
+}
+
+.css-13cymwt-control:hover {
+  border-color: #555 !important;
+}
+
+.css-1nmdiq5-menu {
+  background-color: #1e1e1e !important;
+  color: #FFF !important;
+}
+
+.css-1nmdiq5-menu .css-1nmdiq5-option {
+  background-color: #1e1e1e !important;
+  color: #FFF !important;
+}
+
+.css-1nmdiq5-menu .css-1nmdiq5-option:hover {
+  background-color: #333 !important;
+}
+
+.css-1dimb5e-singleValue {
+  color: #FFF !important;
 }
 
 .time-controls {
@@ -67,4 +105,20 @@ html, body, #root {
   margin-left: 12px;
   font-size: 0.9rem;
   color: #AAA;
+}
+
+.retry-btn {
+  margin-top: 8px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  background: #ff9800;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.retry-btn:hover {
+  background: #e68900;
 }
