@@ -96,7 +96,7 @@ const App: React.FC = () => {
 
     updatePreview(); // consulta imediata
 
-    const interval = setInterval(updatePreview, 2000);
+    const interval = setInterval(updatePreview, 1000);
     return () => clearInterval(interval);
   }, [sessionId, status]);
 
