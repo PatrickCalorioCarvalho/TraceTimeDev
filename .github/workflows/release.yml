@@ -1,0 +1,58 @@
+name: Release Tauri App (Windows)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Bump version
+        run: |
+          npm version patch --no-git-tag-version
+          node -e "
+            const fs = require('fs');
+            const pkg = require('./package.json');
+            const tauri = require('./src-tauri/tauri.conf.json');
+            tauri.package.version = pkg.version;
+            fs.writeFileSync('./src-tauri/tauri.conf.json', JSON.stringify(tauri, null, 2));
+          "
+
+      - name: Commit version bump
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add package.json src-tauri/tauri.conf.json
+          git commit -m "chore: bump version"
+          git push
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build and Release
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: v__VERSION__
+          releaseName: "TraceTime v__VERSION__"
+          releaseBody: "Release automática gerada a partir da main"
+          releaseDraft: false
+          prerelease: false
