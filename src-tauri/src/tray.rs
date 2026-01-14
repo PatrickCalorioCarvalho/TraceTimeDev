@@ -1,6 +1,6 @@
 
 use tauri::{
-    AppHandle, Manager, PhysicalPosition, Result, WebviewUrl, WebviewWindowBuilder, WindowEvent, menu::{Menu, MenuId, MenuItem}, tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent}
+    AppHandle, Manager, Result, WebviewUrl, WebviewWindowBuilder, WindowEvent, menu::{Menu, MenuId, MenuItem}, tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent}
 };
 use tauri::image::Image;
 
@@ -69,23 +69,10 @@ pub fn setup_tray(app: &AppHandle) -> Result<()> {
                         let _ = window.show();
                         let _ = window.set_focus();
                     } else {
-
-                        let monitor = app
-                            .primary_monitor()
-                            .ok().flatten()
-                            .expect("Nenhum monitor encontrado");
-
-                        let monitor_size = monitor.size();
-                        let monitor_x = monitor.position().x as f64;
-                        let monitor_y = monitor.position().y as f64;
-
                         let popup_width = 250.0;
                         let popup_height = 500.0;
+                        let margin = 10.0;
 
-                        let x = monitor_x + monitor_size.width as f64 - popup_width * (2.65 as f64);
-                        let y = monitor_y + monitor_size.height as f64 - popup_height * (1.55 as f64);
-
-                        let position_monitor = PhysicalPosition::new(x, y);
                         let window = tauri::WebviewWindowBuilder::new(
                             app,
                             "Time",
@@ -98,19 +85,47 @@ pub fn setup_tray(app: &AppHandle) -> Result<()> {
                         .skip_taskbar(true)
                         .resizable(false)
                         .inner_size(popup_width, popup_height)
-                        .position(position_monitor.x, position_monitor.y)
-                        .visible(true)
+                        .visible(false)
                         .build()
                         .expect("failed to create popup window");
 
+                        let monitor = window
+                            .current_monitor()
+                            .ok()
+                            .flatten()
+                            .expect("Nenhum monitor encontrado");
+
+                        let work_area = monitor.work_area();
+                        let size = window.outer_size().unwrap();
+
+                        let x = work_area.position.x as f64
+                            + work_area.size.width as f64
+                            - size.width as f64
+                            - margin;
+
+                        let y = work_area.position.y as f64
+                            + work_area.size.height as f64
+                            - size.height as f64
+                            - margin;
+
+                        window
+                            .set_position(tauri::PhysicalPosition::new(x as i32, y as i32))
+                            .unwrap();
+
+                        
+
                         let window_clone = window.clone();
+
                         window.on_window_event(move |event| {
                             if let tauri::WindowEvent::Focused(false) = event {
                                 let _ = window_clone.hide();
                             }
                         });
 
-                        let _ = window.set_focus();
+                        
+                        window.show().unwrap();
+                        window.set_focus().unwrap();
+
                     }
                 }
                 _ => {}
