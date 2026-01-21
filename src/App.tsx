@@ -4,7 +4,7 @@ import Select from "react-select";
 
 interface Group { id: number; name: string; }
 interface Project { id: number; name: string; }
-interface Issue { id: number; title: string; }
+interface Issue { iid: number; title: string; }
 
 const App: React.FC = () => {
   const [groups, setGroups] = useState<Group[]>([]);
@@ -20,6 +20,7 @@ const App: React.FC = () => {
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [status, setStatus] = useState<string>("idle");
   const [preview, setPreview] = useState<string>("0s");
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const [configOk, setConfigOk] = useState<boolean>(false);
 
@@ -63,7 +64,6 @@ const App: React.FC = () => {
     } catch (err) { console.error("Erro ao carregar issues:", err); }
   };
 
-  // Recupera última sessão ao abrir
   useEffect(() => {
     checkConfig();
     invoke<[number, number, number, number, string, string, string] | null>("resume_last_session")
@@ -82,7 +82,6 @@ const App: React.FC = () => {
       });
   }, []);
 
-  // Atualiza preview a cada 10s se rodando
   useEffect(() => {
     console.log("Efeito de atualização de preview acionado.");
     console.log("sessionId:", sessionId, "status:", status);
@@ -94,9 +93,9 @@ const App: React.FC = () => {
       setPreview(previewTime);
     };
 
-    updatePreview(); // consulta imediata
+    updatePreview();
 
-    const interval = setInterval(updatePreview, 1000);
+    const interval = setInterval(updatePreview, 5000);
     return () => clearInterval(interval);
   }, [sessionId, status]);
 
@@ -134,16 +133,36 @@ const App: React.FC = () => {
 
   const handleStop = async () => {
     if (!sessionId) return;
-    await invoke("stop_timer", { sessionId });
+    const previewTime = await invoke<string>("stop_timer", { sessionId });
+    setPreview(previewTime);
+    setShowConfirmModal(true);
+
+  };
+  const cancelStop = async () => {
+    setShowConfirmModal(false);
     setStatus("idle");
     setPreview("0s");
+    setSessionId(null);
+  };
+  const confirmSave = async () => {
+    const result = await invoke<string>("gitlab_add_time", {
+      projectId: selectedProject,
+      issueIid: selectedIssue,
+      duration: preview,
+      summary: entryType,
+    });
+    console.log("Resultado do lançamento de tempo:", result);
+    setShowConfirmModal(false);
+    setStatus("idle");
+    setPreview("0s");
+    setSessionId(null);
   };
 
 
   const selectStyles = {
     control: (base: any, state: any) => ({
       ...base,
-      backgroundColor: state.isDisabled ? "#1a1a1a" : "#1a1a1a", // mais escuro se desativado
+      backgroundColor: state.isDisabled ? "#1a1a1a" : "#1a1a1a",
       borderColor: state.isDisabled ? "#444" : state.isFocused ? "#555" : "#333",
       boxShadow: "none",
       minHeight: "32px",
@@ -235,13 +254,12 @@ const App: React.FC = () => {
       <div className="selector-group">
         <label>Issue</label>
         <Select
-          options={issues.map(i => ({ value: i.id, label: i.title }))}
-          value={issues.find(i => i.id === selectedIssue) ? { value: selectedIssue, label: issues.find(i => i.id === selectedIssue)?.title } : null}
+          options={issues.map(i => ({ value: i.iid, label: i.title }))}
+          value={issues.find(i => i.iid === selectedIssue) ? { value: selectedIssue, label: issues.find(i => i.iid === selectedIssue)?.title } : null}
           onChange={(opt) => {
             if (opt) {
               setSelectedIssue(opt.value);
               setEntryType("");
-              
             }
           }}
           placeholder="Selecione uma issue..."
@@ -287,6 +305,28 @@ const App: React.FC = () => {
         </button>
       </div>
 
+      {showConfirmModal && (
+        <div className="modal-backdrop">
+          <div className="modal">
+            <h3 className="modal-title">Salvar tempo?</h3>
+
+            <div className="modal-content">
+              <p>⏱ <strong>{preview}</strong></p>
+              <p>🧾 Tipo: <strong>{entryType}</strong></p>
+              <p>🐞 Issue: <strong>{selectedIssue}</strong></p>
+            </div>
+
+            <div className="modal-actions">
+              <button className="btn btn-cancel" onClick={cancelStop}>
+                Cancelar
+              </button>
+              <button className="btn btn-confirm" onClick={confirmSave}>
+                Salvar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
   
     </div>
   );

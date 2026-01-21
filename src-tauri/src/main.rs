@@ -36,6 +36,7 @@ fn main() {
             gitlab::gitlab_issues,
             timer::get_session_time,
             timer::resume_last_session,
+            gitlab::gitlab_add_time,
         ])
         .setup(|app| {
             let app_data_dir_path = app.path().app_data_dir().expect("Failed to get app data dir");

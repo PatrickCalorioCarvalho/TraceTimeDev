@@ -138,3 +138,84 @@ button:disabled {
 .retry-btn:hover {
   background: #e68900;
 }
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal {
+  background: #1e1e1e;
+  padding: 20px;
+  border-radius: 10px;
+  width: 300px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  animation: fadeIn 0.15s ease-out;
+}
+
+.modal-title {
+  margin: 0 0 12px;
+  font-size: 16px;
+  color: #fff;
+}
+
+.modal-content {
+  font-size: 13px;
+  color: #cfcfcf;
+  margin-bottom: 16px;
+}
+
+.modal-content p {
+  margin: 4px 0;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  flex: 1;
+  padding: 8px 0;
+  border-radius: 6px;
+  border: none;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-cancel {
+  background: #2c2c2c;
+  color: #bbb;
+}
+
+.btn-cancel:hover {
+  background: #3a3a3a;
+  color: #fff;
+}
+
+.btn-confirm {
+  background: #4f8cff;
+  color: #fff;
+}
+
+.btn-confirm:hover {
+  background: #3a78e0;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

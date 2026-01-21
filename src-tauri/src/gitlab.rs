@@ -104,3 +104,47 @@ pub async fn gitlab_issues(state: tauri::State<'_, AppState>, project_id: i64) -
     Ok(json)
 }
 
+#[tauri::command]
+pub async fn gitlab_add_time(state: tauri::State<'_, AppState>,  
+    project_id: i64,
+    issue_iid: i64,
+    duration: String,
+    summary: String) -> Result<(), String> {
+
+    let (url, token) = {
+        let conn = state.conn.lock().unwrap();
+        let mut stmt = conn.prepare("SELECT url, token FROM config LIMIT 1").unwrap();
+        let mut rows = stmt.query([]).unwrap();
+
+        if let Some(row) = rows.next().unwrap() {
+            let url: String = row.get::<_, String>(0).unwrap();
+            let token: String = row.get::<_, String>(1).unwrap();
+            (url, token)
+        } else {
+            return Err("Configuração não encontrada".into());
+        }
+    };
+    
+    let client = reqwest::Client::new();
+    let resp = client
+        .post(format!(
+            "{}/api/v4/projects/{}/issues/{}/add_spent_time",
+            url, project_id, issue_iid
+        ))
+        .bearer_auth(token)
+        .json(&serde_json::json!({
+            "duration": duration,
+            "summary": summary
+        }))
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+        let status = resp.status();
+
+        if !status.is_success() {
+            let text = resp.text().await.unwrap_or_default();
+            return Err(format!("GitLab error {}: {}", status, text));
+        }
+
+    Ok(())
+}

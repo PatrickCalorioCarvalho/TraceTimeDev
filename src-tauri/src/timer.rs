@@ -43,7 +43,7 @@ pub fn start_timer(
     {
         let mut t = state_time.lock().unwrap();
         if t.running {
-            return -1; // já rodando
+            return -1;
         }
         t.running = true;
     }
@@ -67,7 +67,6 @@ pub fn start_timer(
     session_id
 }
 
-/// Pausa a sessão
 #[tauri::command]
 pub fn pause_timer(app: AppHandle, state: tauri::State<AppState>, session_id: i64, state_time: State<SharedTimer>) {
     let conn = state.conn.lock().unwrap();
@@ -93,7 +92,6 @@ pub fn pause_timer(app: AppHandle, state: tauri::State<AppState>, session_id: i6
     update_tray_icon(&app, "pause");
 }
 
-/// Retoma a sessão
 #[tauri::command]
 pub fn resume_timer(app: AppHandle,state: tauri::State<AppState>, session_id: i64, state_time: State<SharedTimer>) {
     let conn = state.conn.lock().unwrap();
@@ -115,9 +113,8 @@ pub fn resume_timer(app: AppHandle,state: tauri::State<AppState>, session_id: i6
     update_tray_icon(&app, "runner");
 }
 
-/// Finaliza a sessão
 #[tauri::command]
-pub fn stop_timer(app: AppHandle,state: tauri::State<AppState>, session_id: i64, state_time: State<SharedTimer>) {
+pub fn stop_timer(app: AppHandle,state: tauri::State<AppState>, session_id: i64, state_time: State<SharedTimer>) -> String {
     let conn = state.conn.lock().unwrap();
 
     {
@@ -138,9 +135,9 @@ pub fn stop_timer(app: AppHandle,state: tauri::State<AppState>, session_id: i64,
         params![session_id],
     ).unwrap();
     update_tray_icon(&app, "idle");
+    return get_preview_time(&conn, session_id);
 }
 
-/// Calcula tempo acumulado formatado
 #[tauri::command]
 pub fn get_session_time(state: tauri::State<AppState>, session_id: i64) -> String {
     let conn = state.conn.lock().unwrap();
@@ -160,7 +157,6 @@ fn get_preview_time(conn: &rusqlite::Connection, session_id: i64) -> String {
     format_gitlab_time(total)
 }
 
-/// Recupera última sessão (para reabrir app)
 #[tauri::command]
 pub fn resume_last_session(state: tauri::State<AppState>) -> Option<(i64, i64, i64, i64, String, String, String)> {
     
@@ -184,7 +180,6 @@ pub fn resume_last_session(state: tauri::State<AppState>) -> Option<(i64, i64, i
         let session_id = row.0;
         let status_time = row.5.clone();
 
-        // se estava rodando, marca como pausado
         let final_status = if status_time == "runner" {
             conn.execute(
                 "UPDATE sessions SET status='pause' WHERE id=?1",
