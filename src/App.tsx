@@ -15,7 +15,9 @@ const App: React.FC = () => {
   const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
   const [selectedProject, setSelectedProject] = useState<number | null>(null);
   const [selectedIssue, setSelectedIssue] = useState<number | null>(null);
+  const [selectedIssueObj, setSelectedIssueObj] = useState<Issue | null>(null);
   const [entryType, setEntryType] = useState<string>("");
+  const [issueSearch, setIssueSearch] = useState<string>("");
 
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [status, setStatus] = useState<string>("idle");
@@ -57,9 +59,12 @@ const App: React.FC = () => {
     } catch (err) { console.error("Erro ao carregar projetos:", err); }
   };
 
-  const loadIssues = async (projectId: number) => {
+  const loadIssues = async (projectId: number, search?: string) => {
     try {
-      const result = await invoke<Issue[]>("gitlab_issues", { projectId });
+      const result = await invoke<Issue[]>("gitlab_issues", { 
+        projectId,
+        search: search || null 
+      });
       setIssues(result);
     } catch (err) { console.error("Erro ao carregar issues:", err); }
   };
@@ -98,6 +103,16 @@ const App: React.FC = () => {
     const interval = setInterval(updatePreview, 5000);
     return () => clearInterval(interval);
   }, [sessionId, status]);
+
+  useEffect(() => {
+    if (!selectedProject) return;
+
+    const timer = setTimeout(() => {
+      loadIssues(selectedProject, issueSearch.trim() || undefined);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [issueSearch, selectedProject]);
 
 
   const canStart = selectedGroup && selectedProject && selectedIssue && entryType;
@@ -240,8 +255,9 @@ const App: React.FC = () => {
             if (opt && opt.value !== null) {
               setSelectedProject(opt.value);
               setSelectedIssue(null);
+              setSelectedIssueObj(null);
               setIssues([]);
-              loadIssues(opt.value);
+              setIssueSearch("");
             }
           }}
           placeholder="Selecione um projeto..."
@@ -254,16 +270,30 @@ const App: React.FC = () => {
       <div className="selector-group">
         <label>Issue</label>
         <Select
-          options={issues.map(i => ({ value: i.iid, label: i.title }))}
-          value={issues.find(i => i.iid === selectedIssue) ? { value: selectedIssue, label: issues.find(i => i.iid === selectedIssue)?.title } : null}
+          options={(() => {
+            const opts = issues.map(i => ({ value: i.iid, label: `#${i.iid} - ${i.title}` }));
+            if (selectedIssueObj && !issues.find(i => i.iid === selectedIssueObj.iid)) {
+              opts.unshift({ value: selectedIssueObj.iid, label: `#${selectedIssueObj.iid} - ${selectedIssueObj.title}` });
+            }
+            return opts;
+          })()}
+          value={selectedIssueObj ? { value: selectedIssueObj.iid, label: `#${selectedIssueObj.iid} - ${selectedIssueObj.title}` } : null}
           onChange={(opt) => {
             if (opt) {
+              const issue = issues.find(i => i.iid === opt.value);
               setSelectedIssue(opt.value);
+              setSelectedIssueObj(issue || null);
               setEntryType("");
             }
           }}
-          placeholder="Selecione uma issue..."
+          onInputChange={(inputValue, { action }) => {
+             if (action === 'input-change') {
+              setIssueSearch(inputValue);
+            }
+          }}
+          placeholder={issues.length > 0 ? "Digite para buscar ou selecione..." : (issueSearch ? "Nenhuma issue encontrada" : "Digite para buscar issues...")}
           isDisabled={!selectedProject}
+          noOptionsMessage={() => issueSearch ? "Nenhuma issue encontrada" : "Digite para buscar"}
           styles={selectStyles}
         />
       </div>
