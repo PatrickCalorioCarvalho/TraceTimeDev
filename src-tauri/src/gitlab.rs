@@ -86,7 +86,11 @@ pub async fn gitlab_projects(state: tauri::State<'_, AppState>, group_id: i64) -
 }
 
 #[tauri::command]
-pub async fn gitlab_issues(state: tauri::State<'_, AppState>, project_id: i64) -> Result<Vec<serde_json::Value>, String> {
+pub async fn gitlab_issues(
+    state: tauri::State<'_, AppState>, 
+    project_id: i64,
+    search: Option<String>
+) -> Result<Vec<serde_json::Value>, String> {
     let (url, token) = {
         let conn = state.conn.lock().unwrap();
         let mut stmt = conn.prepare("SELECT url, token FROM config LIMIT 1").unwrap();
@@ -104,8 +108,17 @@ pub async fn gitlab_issues(state: tauri::State<'_, AppState>, project_id: i64) -
         .danger_accept_invalid_certs(true)
         .build()
         .map_err(|e| e.to_string())?;
+    
+    let mut url_with_params = format!("{}/api/v4/projects/{}/issues?per_page=100", url, project_id);
+    
+    if let Some(search_term) = search {
+        if !search_term.trim().is_empty() {
+            url_with_params.push_str(&format!("&search={}", urlencoding::encode(search_term.trim())));
+        }
+    }
+    
     let resp = client
-        .get(format!("{}/api/v4/projects/{}/issues", url, project_id))
+        .get(&url_with_params)
         .bearer_auth(token)
         .send()
         .await
