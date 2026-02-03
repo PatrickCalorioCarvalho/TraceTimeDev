@@ -8,6 +8,10 @@ TraceTime é um pequeno aplicativo desktop construído com Tauri (Rust) e React 
 - Backend nativo: Rust via Tauri (opera chamadas ao GitLab e persistência local)
 - UI: `src/App.tsx`, configurações em `src/Config.tsx`
 
+## Documentação online
+
+A documentação pública está disponível em: https://patrickcaloriocarvalho.github.io/TraceTimeDev/
+
 ## Executando em desenvolvimento
 
 Instale dependências e execute o modo dev (desktop via Tauri):
@@ -17,16 +21,7 @@ npm install
 npm run tauri dev
 ```
 
-## Publicar documentação (GitHub Pages)
 
-Esta pasta contém um exemplo de documentação estática em `/docs`. Para publicar no GitHub Pages usando essa pasta:
-
-1. Faça commit e push das alterações para a branch `main`.
-2. No repositório GitHub, vá em Settings → Pages.
-3. Em "Source" escolha `main` branch e a pasta `/docs`.
-4. Salve. A página ficará disponível em `https://<seu-usuario>.github.io/<seu-repo>/`.
-
-Você pode editar `docs/index.html` e `docs/styles.css` se quiser um conteúdo diferente.
 
 ## Estrutura útil
 
