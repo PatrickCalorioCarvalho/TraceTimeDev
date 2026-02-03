@@ -1,0 +1,53 @@
+:root{
+  --bg:#121212;
+  --panel:#1e1e1e;
+  --muted:#cfcfcf;
+  --accent:#4f8cff;
+  --text:#ffffff;
+}
+html,body{height:100%;margin:0;background:var(--bg);font-family:Segoe UI, system-ui, -apple-system, Roboto, "Helvetica Neue", Arial;color:var(--text)}
+.container{max-width:900px;margin:28px auto;padding:20px;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);border-radius:10px}
+header h1{margin:0;font-size:1.6rem}
+.subtitle{color:var(--muted);margin-top:6px}
+section{margin-top:16px}
+h2{color:var(--text);margin:0 0 8px 0}
+p,li{color:var(--muted);line-height:1.45}
+ul{padding-left:18px}
+pre.code{background:var(--panel);color:var(--text);padding:10px;border-radius:6px;overflow:auto}
+footer{margin-top:18px;color:#8a8a8a;font-size:0.85rem}
+a{color:var(--accent)}
+/* Gallery styling for screenshots */
+.gallery{
+  display:flex;
+  flex-wrap:wrap;
+  gap:18px;
+  justify-content:center;
+  align-items:flex-start;
+  margin-top:12px;
+}
+.gallery figure{
+  width:280px;
+  margin:0;
+  background:transparent;
+  text-align:center;
+}
+.gallery img{
+  max-width:100%;
+  height:auto;
+  display:block;
+  margin:0 auto;
+  border-radius:8px;
+  border:1px solid #2a2a2a;
+}
+.gallery figcaption{
+  margin-top:8px;
+  color:var(--muted);
+  font-size:0.9rem;
+}
+.gallery .desc{
+  margin-top:6px;
+  color:#bdbdbd;
+  font-size:0.85rem;
+  line-height:1.35;
+  text-align:left;
+}

@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>TraceTime — Documentação</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <header>
+        <h1>TraceTime</h1>
+        <p class="subtitle">App Tauri + React para lançar tempo no GitLab</p>
+      </header>
+
+      <section>
+        <h2>Visão geral</h2>
+        <p>
+          TraceTime permite iniciar/pausar/retomar e finalizar sessões de tempo
+          e registrar esse tempo em issues do GitLab usando labels configuradas.
+        </p>
+      </section>
+
+      <section>
+        <h2>Funcionalidades</h2>
+        <ul>
+          <li>Selecionar Grupo → Projeto → Issue</li>
+          <li>Controlar sessões (iniciar, pausar, retomar, finalizar)</li>
+          <li>Enviar lançamento ao GitLab com tipo (label)</li>
+          <li>Tela de configurações para URL, token e labels</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Como rodar (desenvolvimento)</h2>
+        <pre class="code">npm install
+npm run tauri dev</pre>
+      </section>
+
+      <section>
+        <h2>Como configurar o GitLab (Personal Access Token)</h2>
+        <p>
+          Para que o TraceTime consiga listar projetos/issues e enviar lançamentos,
+          você precisa de um <strong>Personal Access Token</strong> no GitLab.
+        </p>
+        <ol>
+          <li>Abra seu GitLab e clique no avatar → <strong>Preferences</strong> → <strong>Access Tokens</strong>.</li>
+          <li>Escolha um nome (ex: <em>tracetime-token</em>) e validade opcional.</li>
+          <li>Marque a scope <strong>api</strong> (necessária para chamadas a issues/tempo).</li>
+          <li>Clique em <strong>Create personal access token</strong> e copie o token gerado (guarde com segurança).</li>
+          <li>Na aplicação, abra a tela de Configurações e cole o token no campo correspondente.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Configurar tipos de tempo (Labels)</h2>
+        <p>
+          Use labels no GitLab para categorizar lançamentos (por exemplo: <em>development</em>, <em>bugfix</em>, <em>meeting</em>, <em>research</em>).
+          No App, informe esses labels separados por vírgula na tela de Configurações.
+        </p>
+        <p style="color: #cfcfcf">Recomendações:</p>
+        <ul>
+          <li>Prefira labels curtos e padronizados (ex.: <em>dev</em>, <em>bug</em>, <em>meet</em>).</li>
+          <li>Documente no README do time quais labels representam cada tipo de trabalho.</li>
+          <li>Evite duplicatas e variações de maiúsculas/minúsculas.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Padronizando lançamentos de horário</h2>
+        <p>
+          O objetivo deste projeto é padronizar como os desenvolvedores registram tempo.
+          Sugestões de boas práticas:
+        </p>
+        <ul>
+          <li>Use labels padronizados conforme definido pelo time.</li>
+          <li>Preencha um resumo claro ao salvar o tempo (ex: "Implementação X — revisão PR #123").</li>
+          <li>Adote um formato único para duração quando editar antes de salvar: <strong>1h30m</strong>, <strong>90m</strong> ou <strong>00:30:00</strong>.</li>
+          <li>Instrua o time a revisar os lançamentos semanalmente para corrigir inconsistências.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Exemplos de tela (ordem)</h2>
+        <p>Galeria com screenshots na ordem: Tray → Configuração → Tipo → Idle → Rodando → Pausada → Finalizada.</p>
+
+        <div class="gallery">
+          <figure>
+            <a href="./assets/tay.png" target="_blank"><img src="./assets/tay.png" alt="Tray e opções"/></a>
+            <figcaption>Tray e suas opções
+              <p class="desc">O ícone na bandeja do sistema (tray) oferece acesso rápido: abrir a janela principal, ir para Configurações e encerrar o app. Útil para iniciar o app sem abrir o menu iniciar.</p>
+            </figcaption>
+          </figure>
+
+          <figure>
+            <a href="./assets/configuracao.png" target="_blank"><img src="./assets/configuracao.png" alt="Configuração"/></a>
+            <figcaption>Tela de configuração
+              <p class="desc">Informe a URL do GitLab (self-hosted ou gitlab.com), cole o Personal Access Token criado com scope <strong>api</strong> e defina os labels separados por vírgula. Esses labels aparecerão no seletor de tipos na tela principal.</p>
+            </figcaption>
+          </figure>
+
+          <figure>
+            <a href="./assets/tipo.png" target="_blank"><img src="./assets/tipo.png" alt="Tipo (labels)"/></a>
+            <figcaption>Tipo (labels)
+              <p class="desc">Selecione o tipo de lançamento usando os labels configurados (ex.: <em>dev</em>, <em>bug</em>, <em>meeting</em>). Esses labels padronizam o motivo do lançamento e facilitam relatórios no time.</p>
+            </figcaption>
+          </figure>
+
+          <figure>
+            <a href="./assets/mani-idle.png" target="_blank"><img src="./assets/mani-idle.png" alt="Idle"/></a>
+            <figcaption>Tela principal — Idle
+              <p class="desc">Estado inicial: selecione Grupo → Projeto → Issue e escolha o tipo (label). O botão <strong>Iniciar</strong> fica habilitado quando todos os campos obrigatórios estiverem preenchidos.</p>
+            </figcaption>
+          </figure>
+
+          <figure>
+            <a href="./assets/mani-runner.png" target="_blank"><img src="./assets/mani-runner.png" alt="Rodando"/></a>
+            <figcaption>Tela principal — Rodando
+              <p class="desc">Sessão em execução: o preview de tempo atualiza periodicamente. Use <strong>Pausar</strong> para interromper temporariamente ou <strong>Finalizar</strong> para encerrar e abrir o modal de confirmação para salvar o lançamento no GitLab.</p>
+            </figcaption>
+          </figure>
+
+          <figure>
+            <a href="./assets/mani-pause.png" target="_blank"><img src="./assets/mani-pause.png" alt="Pausada"/></a>
+            <figcaption>Tela principal — Pausada
+              <p class="desc">Sessão pausada: você pode retomar a sessão com <strong>Retomar</strong> ou finalizar. Ao finalizar, será exibido um modal onde é possível ajustar o tempo e confirmar o envio ao GitLab.</p>
+            </figcaption>
+          </figure>
+
+          <figure>
+            <a href="./assets/mani-finish.png" target="_blank"><img src="./assets/mani-finish.png" alt="Finalizada"/></a>
+            <figcaption>Tela principal — Finalizada
+              <p class="desc">Após finalizar e confirmar, a sessão é registrada no GitLab (issue e duração). O app volta ao estado Idle (ou mantém histórico de última sessão dependendo da configuração local).</p>
+            </figcaption>
+          </figure>
+        </div>
+
+        <p style="color:#8a8a8a;font-size:0.9rem;margin-top:6px">Cada imagem abre em tamanho real ao clicar.</p>
+      </section>
+
+      <footer>
+        <p>Arquivos de UI: <strong>src/</strong> — Backend nativo: <strong>src-tauri/</strong></p>
+      </footer>
+    </main>
+  </body>
+</html>
