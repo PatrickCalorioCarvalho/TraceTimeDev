@@ -158,7 +158,7 @@ fn get_preview_time(conn: &rusqlite::Connection, session_id: i64) -> String {
 }
 
 #[tauri::command]
-pub fn resume_last_session(state: tauri::State<AppState>) -> Option<(i64, i64, i64, i64, String, String, String)> {
+pub fn resume_last_session(app: AppHandle,state: tauri::State<AppState>) -> Option<(i64, i64, i64, i64, String, String, String)> {
     
     let conn = state.conn.lock().unwrap();
 
@@ -182,9 +182,16 @@ pub fn resume_last_session(state: tauri::State<AppState>) -> Option<(i64, i64, i
 
         let final_status = if status_time == "runner" {
             conn.execute(
+                "UPDATE session_intervals
+                SET end_time = strftime('%s','now')
+                WHERE session_id=?1 AND end_time IS NULL",
+                params![session_id],
+            ).unwrap();
+            conn.execute(
                 "UPDATE sessions SET status='pause' WHERE id=?1",
                 params![session_id],
             ).unwrap();
+            update_tray_icon(&app, "pause");
             "pause".to_string()
         } else {
             status_time

@@ -114,6 +114,26 @@ const App: React.FC = () => {
     return () => clearTimeout(timer);
   }, [issueSearch, selectedProject]);
 
+  useEffect(() => {
+    if (selectedGroup) {
+      loadProjects(selectedGroup);
+    } else {
+      setProjects([]);
+      setSelectedProject(null);
+    }
+  }, [selectedGroup]);
+
+  useEffect(() => {
+    if (!selectedIssue) return;
+    if (!issues || issues.length === 0) return;
+    const issue = issues.find(i => i.iid === selectedIssue);
+    if (issue) {
+      setSelectedIssueObj(issue);
+    } else {
+      setSelectedIssueObj({ iid: selectedIssue, title: `#${selectedIssue}` });
+    }
+  }, [issues, selectedIssue]);
+
 
   const canStart = selectedGroup && selectedProject && selectedIssue && entryType;
 
@@ -341,9 +361,16 @@ const App: React.FC = () => {
             <h3 className="modal-title">Salvar tempo?</h3>
 
             <div className="modal-content">
-              <p>⏱ <strong>{preview}</strong></p>
-              <p>🧾 Tipo: <strong>{entryType}</strong></p>
-              <p>🐞 Issue: <strong>{selectedIssue}</strong></p>
+              <label className="modal-label">⏱ Tempo (editar antes de salvar)</label>
+              <input
+                className="modal-input"
+                type="text"
+                value={preview}
+                onChange={(e) => setPreview(e.target.value)}
+                placeholder="Ex: 1h30m, 90m, 00:30:00"
+              />
+              <p style={{margin: '6px 0'}}>🧾 Tipo: <strong>{entryType}</strong></p>
+              <p style={{margin: '6px 0'}}>🐞 Issue: <strong>{selectedIssue}</strong></p>
             </div>
 
             <div className="modal-actions">

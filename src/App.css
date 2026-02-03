@@ -174,6 +174,35 @@ button:disabled {
   margin: 4px 0;
 }
 
+.modal-label {
+  display: block;
+  margin-bottom: 6px;
+  color: #cfcfcf;
+  font-size: 13px;
+}
+
+.modal-input {
+  width: 100%;
+  padding: 6px 8px;
+  margin-bottom: 8px;
+  box-sizing: border-box;
+  background: #2a2a2a;
+  color: #FFF;
+  border: 1px solid #333;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.modal-input::placeholder {
+  color: #888;
+}
+
+.modal-input:focus {
+  border-color: #4f8cff;
+  box-shadow: 0 0 0 4px rgba(79,140,255,0.06);
+  outline: none;
+}
+
 .modal-actions {
   display: flex;
   gap: 10px;
