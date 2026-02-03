@@ -1,6 +1,10 @@
 # TraceTime
 
-[![TraceTime logo](docs/assets/logo.png)](https://patrickcaloriocarvalho.github.io/TraceTimeDev/)
+[p align="center"]
+	<a href="https://patrickcaloriocarvalho.github.io/TraceTimeDev/">
+		<img src="docs/assets/logo.png" alt="TraceTime logo" width="96" style="border-radius:8px; display:block; margin:0 auto;" />
+	</a>
+[/p]
 
 TraceTime é um pequeno aplicativo desktop construído com Tauri (Rust) e React + TypeScript (Vite) para controlar sessões de tempo e enviar lançamentos para issues no GitLab.
 
